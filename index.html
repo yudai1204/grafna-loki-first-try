@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    hello
+    <script>
+      // Lokiのエンドポイント
+      const LOKI_BASE_URL = "http://localhost:3100/loki/api/v1/push";
+
+      // ログデータの構築
+      const logData = {
+        streams: [
+          {
+            stream: {
+              app: "yudai-test-app",
+              level: "sony",
+              uuid: "12345678-1234-1234-1234-1234567890ab",
+            },
+            values: [
+              // タイムスタンプとログメッセージのペアを複数含む
+              [new Date().toISOString(), "ログメッセージ1"],
+              [
+                new Date(new Date().getTime() - 60000).toISOString(),
+                "ログメッセージ2",
+              ],
+              // 必要に応じて追加のペア
+            ],
+          },
+          // 必要に応じて他のストリームを追加
+        ],
+      };
+
+      console.log(logData);
+
+      // Lokiへのログ送信
+      fetch(LOKI_BASE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(logData),
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("ログが正常に送信されました");
+            return response.json(); // Lokiからのレスポンスを処理する場合
+          } else {
+            throw new Error("ログの送信に失敗しました");
+          }
+        })
+        .then((data) => console.log(data)) // Lokiからのレスポンスをログに出力
+        .catch((error) => console.error(error));
+    </script>
+  </body>
+</html>
